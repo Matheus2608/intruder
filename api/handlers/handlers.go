@@ -1,11 +1,11 @@
 package handlers
 
 import (
+	"compress/gzip"
 	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"strings"
 )
 
@@ -47,7 +47,7 @@ func parseRequest(req string) (map[string]string, []string, string) {
 		if len(headerList) == 2 {
 			typeHeader, value := headerList[0], headerList[1]
 			if strings.Contains(value, "§") {
-				fmt.Println("Header contains payload:", typeHeader)
+				// fmt.Println("Header contains payload:", typeHeader)
 				headersWhichNeedToBeChanged = append(headersWhichNeedToBeChanged, typeHeader)
 			}
 			requestMap[typeHeader] = strings.TrimSpace(value)
@@ -60,12 +60,11 @@ func parseRequest(req string) (map[string]string, []string, string) {
 }
 
 func makeRequestWithPayload(client *http.Client, req *http.Request, payload string, headersWhichNeedToBeChanged []string) error {
-	fmt.Println("chegamo aqui uhuuuu, Printando os headers que tem o §")
 
 	for _, header := range headersWhichNeedToBeChanged {
-		fmt.Println(header)
+		// fmt.Println(header)
 		headerChanged := changeHearderWithPayload(req.Header.Get(header), payload)
-		fmt.Println("Header changed:", headerChanged)
+		// fmt.Println("Header changed:", headerChanged)
 		req.Header.Set(header, headerChanged)
 	}
 
@@ -73,28 +72,41 @@ func makeRequestWithPayload(client *http.Client, req *http.Request, payload stri
 	httpRes, err := client.Do(req)
 
 	// Close the body in all circustances
-	defer httpRes.Body.Close()
-
 	if err != nil {
 		fmt.Println("Error sending request:", err)
 		return err
 	}
 
+	defer httpRes.Body.Close()
+
+	// using switch to handle different content encodings
+	var reader io.ReadCloser
+	switch httpRes.Header.Get("Content-Encoding") {
+	case "gzip":
+		reader, err = gzip.NewReader(httpRes.Body)
+		if err != nil {
+			fmt.Println("Error creating gzip reader:", err)
+			return err
+		}
+	default:
+		reader = httpRes.Body
+	}
+
 	// Read the response body
-	_, err = io.ReadAll(httpRes.Body)
+	_, err = io.ReadAll(reader)
 	if err != nil {
 		fmt.Println("Error reading response body:", err)
 		return err
 	}
 
-	// bodyString := string(body)
-	// fmt.Println(bodyString)
+	// fmt.Printf("%s", body)
 
 	return nil
 }
 
 func changeHearderWithPayload(header string, payload string) string {
-	return strings.ReplaceAll(header, "§", payload)
+	separetedString := strings.SplitN(header, "§", 3)
+	return separetedString[0] + payload + separetedString[2]
 }
 
 func PostHandler(res http.ResponseWriter, req *http.Request) {
@@ -112,18 +124,13 @@ func PostHandler(res http.ResponseWriter, req *http.Request) {
 
 	client := &http.Client{
 		Transport: &http.Transport{
-			Proxy: http.ProxyURL(&url.URL{
-				Scheme: "http",
-				Host:   "127.0.0.1:8080",
-			}),
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
 
 	err = makeRequestWithPayload(client, httpReq, req.Form["payload"][0], headersWhichNeedToBeChanged)
 	if err != nil {
-		fmt.Println("Error making request with payload:", err)
+		fmt.Println("Error making request:", err)
 		return
 	}
-
 }
