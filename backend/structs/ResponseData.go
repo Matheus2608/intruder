@@ -2,7 +2,7 @@ package structs
 
 import (
 	"fmt"
-	"intruder/facades"
+	"intruder/backend/facades"
 	"net/http"
 	"time"
 )

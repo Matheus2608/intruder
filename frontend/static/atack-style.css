@@ -1,0 +1,121 @@
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f4f4f4;
+	margin: 0;
+	padding: 20px;
+}
+
+.container {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	background-color: #fff;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	padding: 20px;
+}
+
+.header {
+	background-color: #f8f8f8;
+	padding: 10px;
+	border-bottom: 1px solid #ddd;
+}
+
+.table-container {
+	margin-top: 20px;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-bottom: 20px;
+}
+
+th,
+td {
+	padding: 12px;
+	border: 1px solid #ddd;
+	text-align: left;
+}
+
+th {
+	background-color: #f4f4f4;
+}
+
+.tabs {
+	display: flex;
+	justify-content: space-around;
+	cursor: pointer;
+	margin-top: 20px;
+}
+
+.tab {
+	padding: 10px;
+	background-color: #f4f4f4;
+	border: 1px solid #ddd;
+	border-bottom: none;
+	text-align: center;
+}
+
+.tab.active {
+	background-color: #fff;
+	border-bottom: 1px solid #fff;
+}
+
+.content {
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-top: none;
+}
+
+pre {
+	white-space: pre-wrap;
+	word-wrap: break-word;
+}
+
+.request-response-container {
+	margin-top: 20px;
+	border-top: 1px solid #ddd;
+}
+
+.tab-header {
+	display: flex;
+	background-color: #f1f1f1;
+	border-bottom: 1px solid #ddd;
+}
+
+.tab-button {
+	flex: 1;
+	padding: 10px;
+	cursor: pointer;
+	background-color: #f8f8f8;
+	border: none;
+	outline: none;
+	border-right: 1px solid #ddd;
+	font-weight: bold;
+	color: #333;
+}
+
+.tab-button.active {
+	background-color: #ffffff;
+	border-bottom: 1px solid #ffffff;
+	/* Cor para indicar a aba ativa */
+	color: #0078D7;
+}
+
+.tab-content {
+	padding: 15px;
+	border: 1px solid #ddd;
+	border-top: none;
+	background-color: #ffffff;
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+pre {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.5;
+	color: #333;
+}

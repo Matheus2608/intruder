@@ -4,8 +4,8 @@ import (
 	"crypto/tls"
 	"fmt"
 	"html/template"
-	"intruder/facades"
-	"intruder/structs"
+	"intruder/backend/facades"
+	"intruder/backend/structs"
 	"net/http"
 	"strings"
 	"sync"
@@ -25,8 +25,8 @@ func cloneHeaderOnly(r *http.Request) *http.Request {
 func initialInstanciations(req *http.Request) (*http.Request, *http.Client, []string, []string) {
 	// create the request once, because only some header need to be changed later
 	// this will save time and space
-	requestMap, headersWhichNeedToBeChanged, path := facades.ParseRequest(req.FormValue("requestData"))
-	payload := strings.Split(req.FormValue("payload"), "\n")
+	requestMap, headersWhichNeedToBeChanged, path := facades.ParseRequest(req.FormValue("request-data-textarea"))
+	payload := strings.Split(req.FormValue("payload-input"), "\n")
 	httpReq, err := facades.CreateRequest(path, requestMap)
 	if err != nil {
 		panic("Error creating request:" + err.Error())
@@ -87,7 +87,7 @@ func AttackHandler(res http.ResponseWriter, req *http.Request) {
 	// Wait for all workes finish to send the response
 	httpsWG.Wait()
 
-	tmp, err := template.ParseFiles("templates/attack.html")
+	tmp, err := template.ParseFiles("frontend/templates/attack.html")
 	if err != nil {
 		fmt.Println("Error parsing template:", err)
 	}

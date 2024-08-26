@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>HTTP Request/Response Viewer</title>
+	<link rel="stylesheet" href="..//static/atack-style.css">
+</head>
+
+<body>
+	<div class="container">
+		<div class="header">
+			<h1>Intruder Attack of {{ .URL }}</h1>
+		</div>
+		<div class="table-container">
+			<table>
+				<thead>
+					<tr>
+						<th>Request</th>
+						<th>Payload</th>
+						<th>Status Code</th>
+						<th>Time Elapsed (ms) </th>
+						<th>Error</th>
+						<th>Length (bytes)</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range .List }}
+					<tr>
+						<td>{{ .RequestId }}</td>
+						<td>{{ .Payload }}</td>
+						<td>{{ .StatusCode }}</td>
+						<td>{{ .TimeElapsed }}</td>
+						{{ if .Err }}
+						<td>Yes</td>
+						{{ else }}
+						<td>No</td>
+						{{end}}
+						<td>{{ .Length }}</td>
+					</tr>
+					{{ end }}
+				</tbody>
+			</table>
+		</div>
+		<div class="request-response-container">
+			<div class="tab-header">
+				<button type="button" id="button-request" class="tab-button active">Request</button>
+				<button type="button" id="button-response" class="tab-button">Response</button>
+			</div>
+			<div id="content-request" class="tab-content">
+				<pre>Teste</pre>
+			</div>
+			<div id="content-response" style="display: none" class="tab-content">
+				<pre>Teste</pre>
+			</div>
+		</div>
+	</div>
+	<script src="../controllers/attack-controller.js"></script>
+</body>
+
+</html>
