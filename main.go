@@ -8,13 +8,15 @@ import (
 
 func main() {
 
-	// Criando o roteador com o novo servidor
 	router := http.NewServeMux()
+	// Define static directory archives handler
+	fs := http.FileServer(http.Dir("./static"))
 
-	// Configurando as rotas RESTful
+	// Define the routes
+	router.Handle("GET /", fs)
 	router.HandleFunc("POST /attack", handlers.AttackHandler)
-	router.HandleFunc("GET /", handlers.GetRootHandler)
-	// Iniciando o servidor
+
+	// Initialize the server
 	log.Println("Server is running on port 8000")
 	log.Fatal(http.ListenAndServe(":8000", router))
 }
