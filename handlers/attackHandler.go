@@ -11,17 +11,6 @@ import (
 	"sync"
 )
 
-func cloneHeaderOnly(r *http.Request) *http.Request {
-	if r.Header == nil {
-		panic("http: Request.Header is nil")
-	}
-	r2 := new(http.Request)
-	*r2 = *r
-
-	r2.Header = r.Header.Clone()
-	return r2
-}
-
 func initialInstanciations(req *http.Request) (*http.Request, *http.Client, []string, []string) {
 	// create the request once, because only some header need to be changed later
 	// this will save time and space
@@ -49,7 +38,7 @@ func AttackHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	httpReq, client, payload, headersWhichNeedToBeChanged := initialInstanciations(req)
+	httpReq, client, payload, headersToBeChanged := initialInstanciations(req)
 
 	responseList := structs.NewResponses(len(payload), httpReq.URL.String())
 	// HTTPS workers
@@ -64,22 +53,21 @@ func AttackHandler(res http.ResponseWriter, req *http.Request) {
 			defer httpsWG.Done()
 			//fmt.Println("Sending request", idx, "with payload:", payload)
 
-			// Create new http for all iteration because the header will be changed
-			newHttpReq := cloneHeaderOnly(httpReq)
-			httpRes, elapsedTime, err := facades.SendRequestWithPayload(client, newHttpReq, input, headersWhichNeedToBeChanged)
+			newHttpReq := facades.ChangeHeader(httpReq, headersToBeChanged, input)
+			httpRes, elapsedTime, err := facades.SendRequest(client, newHttpReq)
 			if err != nil {
 				fmt.Println("Error sending request:", idx, "with payload", payload, ":", err)
 				return
 			}
 
 			response := structs.NewResponse(
-				newHttpReq,
 				httpRes,
 				input,
 				idx,
-				elapsedTime)
+				elapsedTime,
+			)
 
-			responseList.AddResponse(response, idx)
+			responseList.AddResponse(response)
 		}()
 
 	}

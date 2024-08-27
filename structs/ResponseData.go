@@ -14,7 +14,7 @@ type ResponseData struct {
 	Length      uint32
 }
 
-func NewResponse(httpReq *http.Request, httpRes *http.Response, payload string, idx int, elapsedTime time.Duration) ResponseData {
+func NewResponse(httpRes *http.Response, payload string, idx int, elapsedTime time.Duration) ResponseData {
 	return ResponseData{
 		RequestId:   uint16(idx + 1),
 		Payload:     payload,
