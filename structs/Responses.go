@@ -12,6 +12,6 @@ func NewResponses(size int, url string) Responses {
 	}
 }
 
-func (r *Responses) AddResponse(response ResponseData, idx int) {
-	r.List[idx] = response
+func (r *Responses) AddResponse(response ResponseData) {
+	r.List[response.RequestId-1] = response
 }

@@ -34,28 +34,44 @@ func CreateRequest(path string, requestMap map[string]string) (*http.Request, er
 	return httpReq, err
 }
 
+func cloneHeaderOnly(r *http.Request) *http.Request {
+	if r.Header == nil {
+		panic("http: Request.Header is nil")
+	}
+	r2 := new(http.Request)
+	*r2 = *r
+
+	r2.Header = r.Header.Clone()
+	return r2
+}
+
 func changeHearderWithPayload(header string, payload string) string {
 	separetedString := strings.SplitN(header, "§", 3)
 	return separetedString[0] + payload + separetedString[2]
 }
 
-// TODO make headersWhichNeedToBeChanged a global variable
-func SendRequestWithPayload(client *http.Client, req *http.Request, payload string, headersWhichNeedToBeChanged []string) (*http.Response, time.Duration, error) {
+func ChangeHeader(req *http.Request, headersToBeChanged []string, payload string) *http.Request {
+	newHttpReq := cloneHeaderOnly(req)
 
-	for _, header := range headersWhichNeedToBeChanged {
+	for _, header := range headersToBeChanged {
 		originalHeader := req.Header.Get(header)
 		// fmt.Println("Original header:", originalHeader)
 		headerChanged := changeHearderWithPayload(originalHeader, payload)
 		// fmt.Println("Header changed:", headerChanged)
-		req.Header.Set(header, headerChanged)
+		newHttpReq.Header.Set(header, headerChanged)
 	}
 
-	startTime := time.Now() // Captura o tempo de início
+	return newHttpReq
+}
 
-	httpRes, err := client.Do(req) // Send the request
+func SendRequest(client *http.Client, req *http.Request) (*http.Response, time.Duration, error) {
 
-	endTime := time.Now()                 // Captura o tempo de fim
-	elapsedTime := endTime.Sub(startTime) // Calcula o tempo decorrido
+	startTime := time.Now()
+
+	httpRes, err := client.Do(req)
+
+	endTime := time.Now()
+	elapsedTime := endTime.Sub(startTime)
 
 	return httpRes, elapsedTime, err
 }
@@ -66,7 +82,7 @@ func SendRequestWithPayload(client *http.Client, req *http.Request, payload stri
 
 func ParseRequest(req string) (map[string]string, []string, string) {
 	requestMap := make(map[string]string)
-	headersWhichNeedToBeChanged := []string{}
+	headersToBeChanged := []string{}
 
 	lines := strings.Split(req, "\n")
 	path := strings.SplitN(lines[0], " ", 3)[1]
@@ -80,19 +96,20 @@ func ParseRequest(req string) (map[string]string, []string, string) {
 		typeHeader, value := headerList[0], headerList[1]
 		if strings.Contains(value, "§") {
 			// fmt.Println("Header contains payload:", typeHeader)
-			headersWhichNeedToBeChanged = append(headersWhichNeedToBeChanged, typeHeader)
+			headersToBeChanged = append(headersToBeChanged, typeHeader)
 		}
 		requestMap[typeHeader] = strings.TrimSpace(value)
 	}
 
-	return requestMap, headersWhichNeedToBeChanged, path
+	return requestMap, headersToBeChanged, path
 }
 
 func ParseBody(body io.ReadCloser, contentEncoding string) (string, error) {
 	if body == nil {
 		return "", fmt.Errorf("body is nil")
 	}
-	defer body.Close() // Garantir que o corpo seja fechado
+
+	defer body.Close()
 
 	var reader io.ReadCloser
 	var err error
@@ -103,12 +120,12 @@ func ParseBody(body io.ReadCloser, contentEncoding string) (string, error) {
 			fmt.Println("Error creating gzip reader:", err)
 			return "", err
 		}
-		defer reader.Close() // Garantir que o reader seja fechado
 	} else {
 		reader = body
 	}
 
-	// Ler o corpo
+	defer reader.Close()
+
 	content, err := io.ReadAll(reader)
 	if err != nil {
 		return "", err
