@@ -114,6 +114,52 @@
             color: #333;
         }
 
+
+        #order-by-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .order-by {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .type-select {
+            margin: 0 10px;
+        }
+
+        .remove-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        .add-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            display: block;
+            margin-top: 10px;
+        }
+
+        #submit-btn {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            display: block;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -121,6 +167,24 @@
         <div class="header">
             <h1>Intruder Attack of <a href="{{ .URL }}" >{{ .URL }}</a></h1>
         </div>
+        <div id="order-by-container">
+            <div class="order-by">
+                <label>Order by:</label>
+                <select name="type" class="type-select">
+                    <option value="RequestId">Request</option>
+                    <option value="Payload">Payload</option>
+                    <option value="StatusCode">Status Code</option>
+                    <option value="TimeElapsed">Time Elapsed</option>
+                    <option value="Length">Length</option>
+                    <option value="Err">Error</option>
+                </select>
+                <button idd="remove-btn" class="remove-btn" onclick="removeOrder(this)">-</button>
+            </div>
+        </div>
+        <button id="add-btn" class="add-btn" onclick="addOrder()">+</button>
+        <button type="submit" id="submit-btn" onclick="order()">Submit</button>
+
+    
         <div class="table-container">
             <table>
                 <thead>
@@ -141,9 +205,9 @@
                         <td data-type="StatusCode">{{ .StatusCode}}</td>
                         <td data-type="TimeElapsed">{{ .TimeElapsed}}</td>
                         {{if .Err}}
-                        <td>Yes</td>
+                        <td data-type="Err">Yes</td>
                         {{else}}
-                        <td>No</td>
+                        <td data-type="Err">No</td>
                         {{end}}
                         <td data-type="Length">{{ .Length}}</td>
 
@@ -175,38 +239,119 @@
 
     <script>
         
-        const requestButtons = document.getElementsByClassName('button-request');
-        const responseButtons = document.getElementsByClassName('button-response');
-        const requestContents = document.getElementsByClassName('content-request');
-        const responseContents = document.getElementsByClassName('content-response');
+        function activeClickEventOnDetailsRow() {
+            const requestButtons = document.getElementsByClassName('button-request');
+            const responseButtons = document.getElementsByClassName('button-response');
+            const requestContents = document.getElementsByClassName('content-request');
+            const responseContents = document.getElementsByClassName('content-response');
 
-        for (let idxButton = 0; idxButton < requestButtons.length; idxButton++) {
-            requestButtons[idxButton].addEventListener('click', () => {
-                requestButtons[idxButton].classList.add('active');
-                responseButtons[idxButton].classList.remove('active');
-                requestContents[idxButton].style.display = 'block';
-                responseContents[idxButton].style.display = 'none';
-            }); 
+            for (let idxButton = 0; idxButton < requestButtons.length; idxButton++) {
+                requestButtons[idxButton].addEventListener('click', () => {
+                    requestButtons[idxButton].classList.add('active');
+                    responseButtons[idxButton].classList.remove('active');
+                    requestContents[idxButton].style.display = 'block';
+                    responseContents[idxButton].style.display = 'none';
+                }); 
 
-            responseButtons[idxButton].addEventListener('click', () => {
-                responseButtons[idxButton].classList.add('active');
-                requestButtons[idxButton].classList.remove('active');
-                requestContents[idxButton].style.display = 'none';
-                responseContents[idxButton].style.display = 'block';
-            });
+                responseButtons[idxButton].addEventListener('click', () => {
+                    responseButtons[idxButton].classList.add('active');
+                    requestButtons[idxButton].classList.remove('active');
+                    requestContents[idxButton].style.display = 'none';
+                    responseContents[idxButton].style.display = 'block';
+                });
+            }
         }
 
         function toggleDetails(row) {
-            // Encontra a próxima linha (detalhes) que corresponde à linha clicada
             const detailsRow = row.nextElementSibling;
 
-            // Verifica se a linha de detalhes está oculta ou não e alterna a exibição
             if (detailsRow.style.display === "none") {
                 detailsRow.style.display = "table-row";
             } else {
                 detailsRow.style.display = "none";
             }
         }
+        
+        function addOrder() {
+            const container = document.getElementById('order-by-container');
+            const numberOfOrders = container.getElementsByClassName('order-by').length;
+            if (numberOfOrders >= 6) {
+                console.log('Maximum number of orders reached: ' + numberOfOrders);
+                return;
+            }
+
+            const orderByDiv = document.createElement('div');
+            orderByDiv.className = 'order-by';
+            
+            const label = document.createElement('label');
+            label.textContent = 'Then by:';
+            
+            const select = document.createElement('select');
+            select.className = 'type-select';
+            select.name = 'type';
+            select.innerHTML = `
+                    <option value="RequestId">Request</option>
+                    <option value="Payload">Payload</option>
+                    <option value="StatusCode">Status Code</option>
+                    <option value="TimeElapsed">Time Elapsed</option>
+                    <option value="Length">Length</option>
+                    <option value="Err">Error</option>
+            `;
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.textContent = '-';
+            removeBtn.onclick = function() { removeOrder(removeBtn); };
+            
+            orderByDiv.appendChild(label);
+            orderByDiv.appendChild(select);
+            orderByDiv.appendChild(removeBtn);
+            container.appendChild(orderByDiv);
+        }
+
+        function removeOrder(button) {
+            const container = document.getElementById('order-by-container');
+            container.removeChild(button.parentNode);
+        }
+
+        function order() {
+            const orderByContainer = document.getElementById('order-by-container');
+
+            const orderCriteria = [];
+            document.querySelectorAll("select").forEach(select => orderCriteria.push(select.value));
+
+            const rows = Array.from(document.querySelectorAll('tbody tr:not(.details-row)')).map(row => {
+                return {
+                    mainRow: row,
+                    detailsRow: row.nextElementSibling && row.nextElementSibling.classList.contains('details-row') ? row.nextElementSibling : null
+                };
+            });
+
+            rows.sort((a, b) => {
+                for (const criteria of orderCriteria) {
+                    const aValue = a.mainRow.querySelector(`td[data-type="${criteria}"]`).textContent.trim();
+                    const bValue = b.mainRow.querySelector(`td[data-type="${criteria}"]`).textContent.trim();
+
+                    if (aValue < bValue) return -1;
+                    if (aValue > bValue) return 1;
+                }
+                return 0;
+            });
+
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = ''; 
+
+            rows.forEach(({ mainRow, detailsRow }) => {
+                tbody.appendChild(mainRow);
+                if (detailsRow) {
+                    tbody.appendChild(detailsRow);
+                }
+            });
+
+            activeClickEventOnDetailsRow();
+        }
+
+        activeClickEventOnDetailsRow();
 
     </script>
 </body>
