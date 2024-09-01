@@ -15,12 +15,11 @@
                     <button type="button" id="addSectionButton">Add §</button>
                     <button type="button" id="clearButton">Clear §</button>
                     <button type="submit" name="action" value="start">Start</button>
-                    <button type="submit" name="action" value="stop">Stop</button>
                 </div>
             </div>
-            <div class="content">
-                <textarea class="request-input" name="requestData" id="requestData">
-Put your request here please !!! 
+            <div class="button-container" id="buttonsContainer"></div>
+            <div class="content" id="content">
+                <textarea class="request-input" name="requestData" id="requestData" placeholder='Put your request here please !!! 
 Remember to put your dynamic input besides § like §{dynamic_input}§
 And put it one the right position of the header like Host: §api.github.com§
 Not in the healer as §Host§: api.github.com or it will not work
@@ -45,11 +44,8 @@ Sec-Fetch-Dest: document
 Accept-Encoding: gzip, deflate, br
 If-None-Match: W/"d07f7a16d72f616afe681f05f8c123e2"
 Priority: u=0, i
-Connection: keep-alive
-
-
-                </textarea>
-                <textarea name="payload" class="payload-input" id="payloadInput" placeholder="Enter your payload here"></textarea>
+Connection: keep-alive"'></textarea>
+                <textarea data-payload=1 name="payload1" class="payload-input" placeholder="Enter your payload here"></textarea>
             </div>
         </form>
     </div>

@@ -71,3 +71,10 @@ h1 {
     line-height: 1.5;
     white-space: pre-wrap;
 }
+
+.button-container {
+    margin-bottom: 10px;
+}
+.button-container button {
+    margin-right: 5px;
+}
