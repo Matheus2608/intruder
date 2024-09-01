@@ -4,31 +4,27 @@ import (
 	"crypto/tls"
 	"fmt"
 	"html/template"
-	"intruder/facades"
+	"intruder/strategy"
 	"intruder/structs"
 	"net/http"
 	"strings"
 	"sync"
 )
 
-func initialInstanciations(req *http.Request) (*http.Request, *http.Client, []string, []string) {
-	// create the request once, because only some header need to be changed later
-	// this will save time and space
-	requestMap, headersWhichNeedToBeChanged, path := facades.ParseRequest(req.FormValue("requestData"))
-	payload := strings.Split(req.FormValue("payload"), "\n")
-	httpReq, err := facades.CreateRequest(path, requestMap)
-	if err != nil {
-		panic("Error creating request:" + err.Error())
-	}
+func getMethodAndPath(requestLine string) (string, string) {
+	requestLineList := strings.SplitN(requestLine, " ", 3)
+	return requestLineList[0], requestLineList[1]
+}
 
-	// same logic for the client
-	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+func chooseStrategy(method string) strategy.RequestStrategy {
+	switch method {
+	case "GET":
+		return &strategy.GetRequestStrategy{}
+	case "POST":
+		return &strategy.PostRequestStrategy{}
+	default:
+		panic("Method not implemented")
 	}
-
-	return httpReq, client, payload, headersWhichNeedToBeChanged
 }
 
 func AttackHandler(res http.ResponseWriter, req *http.Request) {
@@ -38,42 +34,69 @@ func AttackHandler(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	httpReq, client, payload, headersToBeChanged := initialInstanciations(req)
+	// request variables
+	reqString := req.FormValue("requestData")
+	reqStringList := strings.Split(req.FormValue("requestData"), "\r\n")
+	requestLine := reqStringList[0]
+	method, path := getMethodAndPath(requestLine)
 
-	responseList := structs.NewResponses(len(payload), httpReq.URL.String())
-	// HTTPS workers
-	var httpsWG sync.WaitGroup
+	// payload variables
+	payloads := strings.Split(req.FormValue("payload"), "\n")
+	lenPayloads := len(payloads)
 
-	for idx, input := range payload {
-		input = strings.TrimSpace(input)
-		httpsWG.Add(1)
+	// Clone Variables
+	strategyClones := make([]strategy.RequestStrategy, lenPayloads)
+	var clonesWG sync.WaitGroup
 
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+
+	originalStrategy := chooseStrategy(method)
+	for idx, payload := range payloads {
+		payload = strings.TrimSpace(payload)
+		clonesWG.Add(1)
 		go func() {
+			defer clonesWG.Done()
+			originalStrategy.CloneWithDifferentPayload(idx, reqString, payload, &strategyClones)
+		}()
+	}
 
-			defer httpsWG.Done()
-			//fmt.Println("Sending request", idx, "with payload:", payload)
+	clonesWG.Wait()
 
-			newHttpReq := facades.ChangeHeader(httpReq, headersToBeChanged, input)
-			httpRes, elapsedTime, err := facades.SendRequest(client, newHttpReq)
+	// TODO
+	responseList := structs.NewResponses(lenPayloads, "")
+	for idx, clone := range strategyClones {
+		clonesWG.Add(1)
+		go func() {
+			defer clonesWG.Done()
+
+			httpReq, err := clone.CreateRequest(path)
 			if err != nil {
-				fmt.Println("Error sending request:", idx, "with payload", payload, ":", err)
-				return
+				panic("Error creating request:" + err.Error())
 			}
 
+			httpRes, elapsedTime, err := strategy.SendRequest(client, httpReq)
+			if err != nil {
+				fmt.Println("Error sending request:", err)
+			}
+
+			cloneHttpReq, clonePayload := clone.ToString()
 			response := structs.NewResponse(
 				httpRes,
-				input,
-				idx,
 				elapsedTime,
-			)
-
+				cloneHttpReq,
+				clonePayload,
+				idx,
+				err == nil)
 			responseList.AddResponse(response)
 		}()
-
 	}
 
 	// Wait for all workes finish to send the response
-	httpsWG.Wait()
+	clonesWG.Wait()
 
 	tmp, err := template.ParseFiles("templates/attack.html")
 	if err != nil {

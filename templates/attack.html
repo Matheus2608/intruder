@@ -135,61 +135,79 @@
                 </thead>
                 <tbody>
                     {{ range .List }}
-                    <tr>
-                        <td>{{ .RequestId }}</td>
-                        <td>{{ .Payload}}</td>
-                        <td>{{ .StatusCode}}</td>
-                        <td>{{ .TimeElapsed}}</td>
+                    <tr onclick="toggleDetails(this)">
+                        <td data-type="RequestId">{{ .RequestId }}</td>
+                        <td data-type="Payload">{{ .Payload}}</td>
+                        <td data-type="StatusCode">{{ .StatusCode}}</td>
+                        <td data-type="TimeElapsed">{{ .TimeElapsed}}</td>
                         {{if .Err}}
                         <td>Yes</td>
                         {{else}}
                         <td>No</td>
                         {{end}}
-                        <td>{{ .Length}}</td>
+                        <td data-type="Length">{{ .Length}}</td>
+
+                        
+                    </tr>
+                    
+                    <tr class="details-row" style="display: none;">
+                        <td colspan="6">
+                            <div class="request-response-container">
+                                <div class="tab-header">
+                                    <button class="tab-button button-request active">Request</button>
+                                    <button class="tab-button button-response">Response</button>
+                                </div>
+                                <div class="tab-content content-request">
+                                    <pre>{{ .HttpReq }}</pre>
+                                </div>
+                                <div class="tab-content content-response" style="display: none;">
+                                    <pre>{{ .HttpRes}}</pre>
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                     {{ end }}
+
                 </tbody>
             </table>
         </div>
-
-        <div class="request-response-container">
-            <div class="tab-header">
-                <button class="tab-button active" id="button-request">Request</button>
-                <button class="tab-button" id="button-response">Response</button>
-            </div>
-            <div class="tab-content" id="content-request">
-                <pre>
-                   TODO
-                </pre>
-            </div>
-            <div class="tab-content" id="content-response" style="display: none;">
-                <pre>
-                   TODO
-                </pre>
-            </div>
-        </div>
-        
     </div>
 
     <script>
-        const requestButton = document.getElementById('button-request');
-        const responseButton = document.getElementById('button-response');
-        const requestContent = document.getElementById('content-request');
-        const responseContent = document.getElementById('content-response');
+        
+        const requestButtons = document.getElementsByClassName('button-request');
+        const responseButtons = document.getElementsByClassName('button-response');
+        const requestContents = document.getElementsByClassName('content-request');
+        const responseContents = document.getElementsByClassName('content-response');
 
-        requestButton.addEventListener('click', () => {
-            requestButton.classList.add('active');
-            responseButton.classList.remove('active');
-            requestContent.style.display = 'block';
-            responseContent.style.display = 'none';
-        });
+        for (let idxButton = 0; idxButton < requestButtons.length; idxButton++) {
+            requestButtons[idxButton].addEventListener('click', () => {
+                requestButtons[idxButton].classList.add('active');
+                responseButtons[idxButton].classList.remove('active');
+                requestContents[idxButton].style.display = 'block';
+                responseContents[idxButton].style.display = 'none';
+            }); 
 
-        responseButton.addEventListener('click', () => {
-            responseButton.classList.add('active');
-            requestButton.classList.remove('active');
-            requestContent.style.display = 'none';
-            responseContent.style.display = 'block';
-        });
+            responseButtons[idxButton].addEventListener('click', () => {
+                responseButtons[idxButton].classList.add('active');
+                requestButtons[idxButton].classList.remove('active');
+                requestContents[idxButton].style.display = 'none';
+                responseContents[idxButton].style.display = 'block';
+            });
+        }
+
+        function toggleDetails(row) {
+            // Encontra a próxima linha (detalhes) que corresponde à linha clicada
+            const detailsRow = row.nextElementSibling;
+
+            // Verifica se a linha de detalhes está oculta ou não e alterna a exibição
+            if (detailsRow.style.display === "none") {
+                detailsRow.style.display = "table-row";
+            } else {
+                detailsRow.style.display = "none";
+            }
+        }
+
     </script>
 </body>
 </html>
