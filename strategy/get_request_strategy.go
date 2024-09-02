@@ -7,7 +7,7 @@ import (
 )
 
 type GetRequestStrategy struct {
-	Payload string
+	Payload []string
 	HttpReq string
 }
 
@@ -37,7 +37,7 @@ func parseRequest(headerAndBody []string) (map[string]string, error) {
 	return headersMap, nil
 }
 
-func (strategy *GetRequestStrategy) CloneWithDifferentPayload(idx int, req string, payload string, strategyClones *[]RequestStrategy) {
+func (strategy *GetRequestStrategy) CloneWithDifferentPayload(idx int, req string, payload []string, strategyClones *[]RequestStrategy) {
 	newReq, err := ReplaceDynamicInput(req, payload)
 	fmt.Print("newReq: ", newReq)
 	if err != nil {
@@ -84,5 +84,5 @@ func (strategy *GetRequestStrategy) CreateRequest(path string) (*http.Request, e
 }
 
 func (strategy *GetRequestStrategy) ToString() (string, string) {
-	return strategy.HttpReq, strategy.Payload
+	return strategy.HttpReq, strings.Join(strategy.Payload, ", ")
 }

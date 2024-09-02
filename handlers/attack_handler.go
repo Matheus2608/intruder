@@ -7,6 +7,7 @@ import (
 	"intruder/strategy"
 	"intruder/structs"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 )
@@ -27,6 +28,54 @@ func chooseStrategy(method string) strategy.RequestStrategy {
 	}
 }
 
+func getPayloads(req *http.Request) [][]string {
+	var originalPayloads [][]string
+
+	payload1 := strings.Split(req.FormValue("payload1"), "\r\n")
+	expectedNumberOfInputs := len(payload1)
+	if expectedNumberOfInputs == 0 {
+		return nil
+	}
+	originalPayloads = append(originalPayloads, payload1)
+
+	basePayloadKey := "payload"
+	for i := 2; ; i++ {
+		payloadKey := basePayloadKey + strconv.Itoa(i)
+		payload := req.FormValue(payloadKey)
+		if payload == "" {
+			break
+		}
+
+		payloadList := strings.Split(payload, "\r\n")
+		// fmt.Printf("payloadKey: %s, payloadList: %v\n", payloadKey, payloadList)
+
+		if len(payloadList) != expectedNumberOfInputs {
+			panic("Different number of payloads")
+		}
+
+		originalPayloads = append(originalPayloads, payloadList)
+	}
+
+	return convertMatrix(originalPayloads)
+}
+
+func convertMatrix(originalMatrix [][]string) [][]string {
+	numberOfRows := len(originalMatrix[0])
+	numberOfColumns := len(originalMatrix)
+	convertedMatrix := make([][]string, numberOfRows)
+	for i := range convertedMatrix {
+		convertedMatrix[i] = make([]string, numberOfColumns)
+	}
+
+	for row, rowList := range originalMatrix {
+		for col, value := range rowList {
+			convertedMatrix[col][row] = value
+		}
+	}
+
+	return convertedMatrix
+}
+
 func AttackHandler(res http.ResponseWriter, req *http.Request) {
 	// Parse the form data
 	if err := req.ParseForm(); err != nil {
@@ -41,7 +90,7 @@ func AttackHandler(res http.ResponseWriter, req *http.Request) {
 	method, path := getMethodAndPath(requestLine)
 
 	// payload variables
-	payloads := strings.Split(req.FormValue("payload"), "\n")
+	payloads := getPayloads(req)
 	lenPayloads := len(payloads)
 
 	// Clone Variables
@@ -56,7 +105,7 @@ func AttackHandler(res http.ResponseWriter, req *http.Request) {
 
 	originalStrategy := chooseStrategy(method)
 	for idx, payload := range payloads {
-		payload = strings.TrimSpace(payload)
+		// payload = strings.TrimSpace(payload)
 		clonesWG.Add(1)
 		go func() {
 			defer clonesWG.Done()

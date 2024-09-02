@@ -10,12 +10,21 @@ import (
 )
 
 // TODO make with more payloads
-func ReplaceDynamicInput(req string, payload string) (string, error) {
-	separetedString := strings.Split(req, "§")
-	if len(separetedString) != 3 {
-		return "", fmt.Errorf("invalid request")
+func ReplaceDynamicInput(req string, payload []string) (string, error) {
+	fmt.Printf("payload: %v\n", payload)
+
+	for _, payload := range payload {
+		separetedString := strings.SplitN(req, "§", 3)
+		lenSeparetedString := len(separetedString)
+
+		if lenSeparetedString == 0 || lenSeparetedString != 3 {
+			return "", fmt.Errorf("invalid request")
+		}
+
+		req = separetedString[0] + payload + separetedString[2]
 	}
-	return separetedString[0] + payload + separetedString[2], nil
+
+	return req, nil
 }
 
 func SendRequest(client *http.Client, req *http.Request) (*http.Response, time.Duration, error) {
