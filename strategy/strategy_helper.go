@@ -9,11 +9,11 @@ import (
 	"time"
 )
 
-// TODO make with more payloads
 func ReplaceDynamicInput(req string, payload []string) (string, error) {
-	fmt.Printf("payload: %v\n", payload)
+	// fmt.Printf("payload: %v\n", payload)
 
 	for _, payload := range payload {
+		// condition just for sniper attack
 		separetedString := strings.SplitN(req, "§", 3)
 		lenSeparetedString := len(separetedString)
 
@@ -21,7 +21,11 @@ func ReplaceDynamicInput(req string, payload []string) (string, error) {
 			return "", fmt.Errorf("invalid request")
 		}
 
-		req = separetedString[0] + payload + separetedString[2]
+		if payload == "" {
+			req = separetedString[0] + separetedString[1] + separetedString[2]
+		} else {
+			req = separetedString[0] + payload + separetedString[2]
+		}
 	}
 
 	return req, nil

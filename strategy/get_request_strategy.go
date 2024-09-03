@@ -39,7 +39,7 @@ func parseRequest(headerAndBody []string) (map[string]string, error) {
 
 func (strategy *GetRequestStrategy) CloneWithDifferentPayload(idx int, req string, payload []string, strategyClones *[]RequestStrategy) {
 	newReq, err := ReplaceDynamicInput(req, payload)
-	fmt.Print("newReq: ", newReq)
+	// fmt.Print("newReq: ", newReq)
 	if err != nil {
 		panic(err)
 	}
