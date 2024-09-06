@@ -1,7 +1,7 @@
 package structs
 
 import (
-	"intruder/strategy"
+	strategy "intruder/strategy/request"
 	"net/http"
 	"time"
 )
