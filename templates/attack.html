@@ -166,6 +166,7 @@
     <div class="container">
         <div class="header">
             <h1>Intruder Attack of <a href="{{ .URL }}" >{{ .URL }}</a></h1>
+            <h2> Elapsed Time {{ .ElapsedTime }}</h2>
         </div>
         <div id="order-by-container">
             <div class="order-by">
@@ -184,7 +185,7 @@
         <button id="add-btn" class="add-btn" onclick="addOrder()">+</button>
         <button type="submit" id="submit-btn" onclick="order()">Submit</button>
 
-    
+
         <div class="table-container">
             <table>
                 <thead>
@@ -211,9 +212,9 @@
                         {{end}}
                         <td data-type="Length">{{ .Length}}</td>
 
-                        
+
                     </tr>
-                    
+
                     <tr class="details-row" style="display: none;">
                         <td colspan="6">
                             <div class="request-response-container">
@@ -238,7 +239,7 @@
     </div>
 
     <script>
-        
+
         function activeClickEventOnDetailsRow() {
             const requestButtons = document.getElementsByClassName('button-request');
             const responseButtons = document.getElementsByClassName('button-response');
@@ -251,7 +252,7 @@
                     responseButtons[idxButton].classList.remove('active');
                     requestContents[idxButton].style.display = 'block';
                     responseContents[idxButton].style.display = 'none';
-                }); 
+                });
 
                 responseButtons[idxButton].addEventListener('click', () => {
                     responseButtons[idxButton].classList.add('active');
@@ -271,7 +272,7 @@
                 detailsRow.style.display = "none";
             }
         }
-        
+
         function addOrder() {
             const container = document.getElementById('order-by-container');
             const numberOfOrders = container.getElementsByClassName('order-by').length;
@@ -282,10 +283,10 @@
 
             const orderByDiv = document.createElement('div');
             orderByDiv.className = 'order-by';
-            
+
             const label = document.createElement('label');
             label.textContent = 'Then by:';
-            
+
             const select = document.createElement('select');
             select.className = 'type-select';
             select.name = 'type';
@@ -297,12 +298,12 @@
                     <option value="Length">Length</option>
                     <option value="Err">Error</option>
             `;
-            
+
             const removeBtn = document.createElement('button');
             removeBtn.className = 'remove-btn';
             removeBtn.textContent = '-';
             removeBtn.onclick = function() { removeOrder(removeBtn); };
-            
+
             orderByDiv.appendChild(label);
             orderByDiv.appendChild(select);
             orderByDiv.appendChild(removeBtn);
@@ -339,7 +340,7 @@
             });
 
             const tbody = document.querySelector('tbody');
-            tbody.innerHTML = ''; 
+            tbody.innerHTML = '';
 
             rows.forEach(({ mainRow, detailsRow }) => {
                 tbody.appendChild(mainRow);

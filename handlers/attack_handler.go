@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 )
 
 func getMethodAndPath(requestLine string) (string, string) {
@@ -58,7 +59,9 @@ func AttackHandler(res http.ResponseWriter, req *http.Request) {
 	clonesWG.Wait()
 
 	url := false
-	responseList := structs.NewResponses(lenPayloads) // TODO
+	responseList := structs.NewResponses(lenPayloads)
+	startTime := time.Now()
+
 	for idx, clone := range strategyClones {
 		clonesWG.Add(1)
 		go func() {
@@ -93,6 +96,10 @@ func AttackHandler(res http.ResponseWriter, req *http.Request) {
 
 	// Wait for all workes finish to send the response
 	clonesWG.Wait()
+
+	endTime := time.Now()                 // Captura o tempo de fim
+	elapsedTime := endTime.Sub(startTime) // Calcula o tempo decorrido
+	responseList.ElapsedTime = elapsedTime.String()
 
 	tmp, err := template.ParseFiles("templates/attack.html")
 	if err != nil {

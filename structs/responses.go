@@ -1,8 +1,9 @@
 package structs
 
 type Responses struct {
-	List []ResponseData
-	URL  string
+	List        []ResponseData
+	URL         string
+	ElapsedTime string
 }
 
 func NewResponses(size int) Responses {
