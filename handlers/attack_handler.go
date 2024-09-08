@@ -57,7 +57,8 @@ func AttackHandler(res http.ResponseWriter, req *http.Request) {
 
 	clonesWG.Wait()
 
-	responseList := structs.NewResponses(lenPayloads, "") // TODO
+	url := false
+	responseList := structs.NewResponses(lenPayloads) // TODO
 	for idx, clone := range strategyClones {
 		clonesWG.Add(1)
 		go func() {
@@ -66,6 +67,11 @@ func AttackHandler(res http.ResponseWriter, req *http.Request) {
 			httpReq, err := clone.CreateRequest(path)
 			if err != nil {
 				panic("Error creating request:" + err.Error())
+			}
+
+			if !url {
+				responseList.URL = httpReq.URL.String()
+				url = true
 			}
 
 			httpRes, elapsedTime, err := strategy.SendRequest(client, httpReq)

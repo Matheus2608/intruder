@@ -5,10 +5,9 @@ type Responses struct {
 	URL  string
 }
 
-func NewResponses(size int, url string) Responses {
+func NewResponses(size int) Responses {
 	return Responses{
 		List: make([]ResponseData, size),
-		URL:  url,
 	}
 }
 
