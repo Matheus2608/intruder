@@ -1,0 +1,45 @@
+<div class="container">
+    <h1>Intruder Attack Configuration</h1>
+    <form action="/attack" method="POST">
+        <div class="header-bar">
+            <div class="config-options">
+                <div>
+                    <label for="typeOfAttack">Attack type:</label>
+                    <select id="typeOfAttack" name="typeOfAttack">
+                        <option value="sniper">Sniper</option>
+                        <option value="battering-ram">Battering Ram</option>
+                        <option value="pitch-fork">Pitch Fork</option>
+                        <option value="cluster-bomb">Cluster Bomb</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="concurrency">Concurrency:</label>
+                    <input type="number" id="concurrency" name="concurrency" value="10" min="1" max="500" title="Number of simultaneous requests">
+                </div>
+                <div>
+                    <label for="delay">Delay (ms):</label>
+                    <input type="number" id="delay" name="delay" value="0" min="0" max="10000" title="Delay between requests in milliseconds">
+                </div>
+                <div>
+                    <input type="checkbox" id="skipVerify" name="skipVerify" value="true">
+                    <label for="skipVerify" title="Allow insecure TLS connections (skip certificate verification)">Skip TLS Verify</label>
+                </div>
+            </div>
+             <div class="payload-buttons">
+                <button (click)="addSpecialCharsBetweenSelectedArea()" type="button" id="addSectionButton" title="Mark selected text as a payload position (§...§)">Add §</button>
+                <button (click)="removeDollarSpans()" type="button" id="clearButton" title="Remove all payload markers (§)">Clear §</button>
+            </div>
+            <div class="action-button">
+                 <button type="submit" name="action" value="start" class="start-button">Start Attack</button>
+            </div>
+
+        </div>
+        <!-- Placeholder for dynamic payload buttons if needed -->
+        <!-- <div class="button-container" id="buttonsContainer"></div> -->
+
+        <div class="content" id="content">
+            <div #httpPayload contenteditable="true" spellcheck=false class="request-input" id="requestData">{{initialHttpPayload}}</div>
+            <textarea data-payload=1 name="payload1" class="payload-input" placeholder="Payload list 1 (one payload per line)"></textarea>
+        </div>
+    </form>
+</div>
