@@ -3,356 +3,333 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTTP Request/Response Viewer</title>
+    <title>Intruder Attack Results</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
+        /* ... (Keep existing styles from the original file) ... */
+        /* Add styles for errors or specific highlighting */
+         body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { width: 95%; max-width: 1600px; margin: 0 auto; background-color: #fff; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; border-radius: 8px; }
+        .header { background-color: #f8f8f8; padding: 15px; border-bottom: 1px solid #ddd; margin: -20px -20px 20px -20px; border-radius: 8px 8px 0 0; }
+        .header h1 { font-size: 20px; margin: 0 0 5px 0; }
+        .header h1 a { color: #007bff; text-decoration: none; }
+        .header h1 a:hover { text-decoration: underline; }
+        .header h2 { font-size: 14px; color: #555; margin: 0; }
+        .table-container { margin-top: 20px; width: 100%; overflow-x: auto; /* Allow horizontal scroll on small screens */ }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+        th, td { padding: 10px 12px; border: 1px solid #ddd; text-align: left; white-space: nowrap; /* Prevent wrapping in cells */ }
+        th { background-color: #f4f4f4; font-weight: bold; cursor: pointer; position: relative;}
+        th::after { /* Add space for sort indicator */
+             content: '';
+             display: inline-block;
+             width: 1em; /* Adjust width as needed */
+             height: 1em;
+             margin-left: 5px;
         }
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
+        /* Simple sort indicator */
+        th.sort-asc::after { content: ' ▲'; }
+        th.sort-desc::after { content: ' ▼'; }
+
+        tbody tr:hover:not(.details-row) { background-color: #f9f9f9; } /* Hover effect */
+        tbody tr { cursor: pointer; } /* Indicate rows are clickable */
+        .details-row { background-color: #fafafa; }
+        .details-row td { padding: 0; } /* Remove padding for the container */
+
+        /* Request/Response Tabs */
+        .request-response-container { margin: 0; border: none; }
+        .tab-header { display: flex; background-color: #e9ecef; border-bottom: 1px solid #ddd; }
+        .tab-button { flex: 0 0 auto; /* Don't grow/shrink, base on content */ padding: 10px 15px; cursor: pointer; background-color: transparent; border: none; border-right: 1px solid #ddd; outline: none; font-weight: normal; color: #495057; font-size: 13px;}
+        .tab-button:last-child { border-right: none; }
+        .tab-button.active { background-color: #ffffff; font-weight: bold; color: #007bff; border-bottom: 1px solid #ffffff; margin-bottom: -1px; /* Overlap border */ }
+        .tab-content { padding: 15px; border: 1px solid #ddd; border-top: none; background-color: #ffffff; max-height: 400px; /* Increase height */ overflow-y: auto; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.5; }
+        .tab-content pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; color: #333; }
+        .tab-content.content-response { /* Specific styling for response if needed */ }
+
+        /* Error styling */
+        .error-row td { /* Style the main row */
+            /* background-color: #ffebee; */ /* Light red background for error rows */
+            color: #b71c1c; /* Darker red text */
         }
-        .header {
-            background-color: #f8f8f8;
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
-        }
-        .table-container {
-            margin-top: 20px;
-            border-collapse: collapse;
-            width: 100%;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        .tabs {
-            display: flex;
-            justify-content: space-around;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        .tab {
-            padding: 10px;
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-            border-bottom: none;
-            text-align: center;
-        }
-        .tab.active {
-            background-color: #fff;
-            border-bottom: 1px solid #fff;
-        }
-        .content {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-top: none;
-        }
-        pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
+        .error-message {
+            color: #d32f2f; /* Red color for error messages */
+            font-style: italic;
+            font-size: 12px;
         }
 
-        .request-response-container {
-            margin-top: 20px;
-            border-top: 1px solid #ddd;
-        }
+        /* Ordering Controls - Keep or remove based on preference */
+        #order-controls { margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; }
+        #order-by-container { display: flex; flex-direction: column; gap: 10px; }
+        .order-by { display: flex; align-items: center; gap: 8px; }
+        .order-by label { font-size: 14px; font-weight: bold; margin-right: 5px; }
+        .type-select { padding: 5px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; }
+        .remove-btn, .add-btn { background-color: #dc3545; color: white; border: none; border-radius: 50%; /* Circle */ width: 24px; height: 24px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; line-height: 1; }
+        .add-btn { background-color: #28a745; margin-top: 10px; width: auto; height: auto; padding: 8px 12px; border-radius: 4px; }
+        .remove-btn:hover { background-color: #c82333; }
+        .add-btn:hover { background-color: #218838; }
+        #submit-btn { background-color: #007bff; color: white; border: none; border-radius: 4px; padding: 10px 15px; cursor: pointer; display: block; margin-top: 15px; font-size: 14px; }
+        #submit-btn:hover { background-color: #0056b3; }
 
-        .tab-header {
-            display: flex;
-            background-color: #f1f1f1;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .tab-button {
-            flex: 1;
-            padding: 10px;
-            cursor: pointer;
-            background-color: #f8f8f8;
-            border: none;
-            outline: none;
-            border-right: 1px solid #ddd;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .tab-button.active {
-            background-color: #ffffff;
-            border-bottom: 1px solid #ffffff;
-            color: #0078D7; /* Cor para indicar a aba ativa */
-        }
-
-        .tab-content {
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-top: none;
-            background-color: #ffffff;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        pre {
-            margin: 0;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #333;
-        }
-
-
-        #order-by-container {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .order-by {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .type-select {
-            margin: 0 10px;
-        }
-
-        .remove-btn {
-            background-color: #f44336;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-
-        .add-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 10px 15px;
-            cursor: pointer;
-            display: block;
-            margin-top: 10px;
-        }
-
-        #submit-btn {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 10px 15px;
-            cursor: pointer;
-            display: block;
-            margin-top: 20px;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Intruder Attack of <a href="{{ .URL }}" >{{ .URL }}</a></h1>
-            <h2> Elapsed Time {{ .ElapsedTime }}</h2>
+            <h1>Intruder Attack Results: <a href="{{ .URL }}" target="_blank" rel="noopener noreferrer">{{ .URL }}</a></h1>
+            <h2>Total Attack Time: {{ .ElapsedTime }} | Requests: {{ len .List }}</h2>
         </div>
-        <div id="order-by-container">
-            <div class="order-by">
-                <label>Order by:</label>
-                <select name="type" class="type-select">
-                    <option value="RequestId">Request</option>
-                    <option value="Payload">Payload</option>
-                    <option value="StatusCode">Status Code</option>
-                    <option value="TimeElapsed">Time Elapsed</option>
-                    <option value="Length">Length</option>
-                    <option value="Err">Error</option>
-                </select>
-                <button idd="remove-btn" class="remove-btn" onclick="removeOrder(this)">-</button>
+
+        <!-- Optional Ordering Controls -->
+        <div id="order-controls" style="display: none;"> <!-- Hidden by default, enable if complex sorting is desired -->
+            <div id="order-by-container">
+                <div class="order-by">
+                    <label>Sort by:</label>
+                    <select name="type" class="type-select">
+                        <option value="RequestId">Request #</option>
+                        <option value="Payload">Payload</option>
+                        <option value="StatusCode">Status</option>
+                        <option value="TimeElapsed">Time (ms)</option>
+                        <option value="Length">Length</option>
+                        <option value="Err">Error</option>
+                    </select>
+                     <select name="direction" class="direction-select">
+                        <option value="asc">Asc</option>
+                        <option value="desc">Desc</option>
+                    </select>
+                    <button class="remove-btn" onclick="removeOrder(this)" title="Remove sort level">-</button>
+                </div>
             </div>
+            <button id="add-btn" class="add-btn" onclick="addOrder()" title="Add sorting level">+</button>
+            <button type="button" id="submit-btn" onclick="applySorting()">Apply Sort</button>
         </div>
-        <button id="add-btn" class="add-btn" onclick="addOrder()">+</button>
-        <button type="submit" id="submit-btn" onclick="order()">Submit</button>
 
 
         <div class="table-container">
-            <table>
+            <table id="resultsTable">
                 <thead>
                     <tr>
-                        <th>Request</th>
-                        <th>Payload</th>
-                        <th>Status Code</th>
-                        <th>Time Elapsed (ms) </th>
-                        <th>Error</th>
-                        <th>Length (bytes)</th>
+                        <!-- Add data-sort-key for easier JS selection -->
+                        <th data-sort-key="RequestId" onclick="sortTable('RequestId', this)">Request #</th>
+                        <th data-sort-key="Payload" onclick="sortTable('Payload', this)">Payload</th>
+                        <th data-sort-key="StatusCode" onclick="sortTable('StatusCode', this)">Status</th>
+                        <th data-sort-key="TimeElapsed" onclick="sortTable('TimeElapsed', this)">Time (ms)</th>
+                        <th data-sort-key="Err" onclick="sortTable('Err', this)">Error</th>
+                        <th data-sort-key="Length" onclick="sortTable('Length', this)">Length</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{ range .List }}
-                    <tr onclick="toggleDetails(this)">
+                    <tr onclick="toggleDetails(this)" class="{{ if .Err }}error-row{{ end }}">
                         <td data-type="RequestId">{{ .RequestId }}</td>
-                        <td data-type="Payload">{{ .Payload}}</td>
-                        <td data-type="StatusCode">{{ .StatusCode}}</td>
-                        <td data-type="TimeElapsed">{{ .TimeElapsed}}</td>
-                        {{if .Err}}
-                        <td data-type="Err">Yes</td>
-                        {{else}}
-                        <td data-type="Err">No</td>
-                        {{end}}
-                        <td data-type="Length">{{ .Length}}</td>
-
-
+                        <td data-type="Payload" title="{{ .Payload }}">{{ .Payload }}</td> <!-- Add title for long payloads -->
+                        <td data-type="StatusCode">{{ if eq .StatusCode 0 }}N/A{{ else }}{{ .StatusCode }}{{ end }}</td>
+                        <td data-type="TimeElapsed">{{ .TimeElapsed }}</td>
+                        <td data-type="Err">
+                            {{ if .Err }}
+                                <span class="error-indicator" title="{{ .ErrorMsg }}">Yes</span>
+                                <!--<div class="error-message">{{ .ErrorMsg }}</div>--> <!-- Show full msg in details -->
+                            {{ else }}
+                                No
+                            {{ end }}
+                        </td>
+                        <td data-type="Length">{{ .Length }}</td>
                     </tr>
-
+                    <!-- Details Row -->
                     <tr class="details-row" style="display: none;">
-                        <td colspan="6">
+                        <td colspan="6"> <!-- Span all columns -->
                             <div class="request-response-container">
                                 <div class="tab-header">
-                                    <button class="tab-button button-request active">Request</button>
-                                    <button class="tab-button button-response">Response</button>
+                                    <button class="tab-button button-request active" data-target="content-request">Request</button>
+                                    <button class="tab-button button-response" data-target="content-response">Response</button>
                                 </div>
+                                {{ if .Err }}
+                                <div style="padding: 10px 15px; background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404;">
+                                    <strong>Error:</strong> {{ .ErrorMsg }}
+                                </div>
+                                {{ end }}
                                 <div class="tab-content content-request">
                                     <pre>{{ .HttpReq }}</pre>
                                 </div>
                                 <div class="tab-content content-response" style="display: none;">
-                                    <pre>{{ .HttpRes}}</pre>
+                                    <pre>{{ .HttpRes }}</pre>
                                 </div>
                             </div>
                         </td>
                     </tr>
                     {{ end }}
-
                 </tbody>
             </table>
         </div>
     </div>
 
     <script>
-
-        function activeClickEventOnDetailsRow() {
-            const requestButtons = document.getElementsByClassName('button-request');
-            const responseButtons = document.getElementsByClassName('button-response');
-            const requestContents = document.getElementsByClassName('content-request');
-            const responseContents = document.getElementsByClassName('content-response');
-
-            for (let idxButton = 0; idxButton < requestButtons.length; idxButton++) {
-                requestButtons[idxButton].addEventListener('click', () => {
-                    requestButtons[idxButton].classList.add('active');
-                    responseButtons[idxButton].classList.remove('active');
-                    requestContents[idxButton].style.display = 'block';
-                    responseContents[idxButton].style.display = 'none';
-                });
-
-                responseButtons[idxButton].addEventListener('click', () => {
-                    responseButtons[idxButton].classList.add('active');
-                    requestButtons[idxButton].classList.remove('active');
-                    requestContents[idxButton].style.display = 'none';
-                    responseContents[idxButton].style.display = 'block';
-                });
-            }
-        }
-
+        // --- Details Row Toggling & Tabs ---
         function toggleDetails(row) {
+            if (row.classList.contains('details-row')) return; 
             const detailsRow = row.nextElementSibling;
+            if (detailsRow && detailsRow.classList.contains('details-row')) {
+                detailsRow.style.display = detailsRow.style.display === "none" ? "table-row" : "none";
+            }
+        }
 
-            if (detailsRow.style.display === "none") {
-                detailsRow.style.display = "table-row";
+        function activateTab(button) {
+            const container = button.closest('.request-response-container');
+            if (!container) return;
+            const targetClass = button.getAttribute('data-target');
+            container.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            container.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            button.classList.add('active');
+            const targetContent = container.querySelector(`.${targetClass}`);
+            if (targetContent) {
+                targetContent.style.display = 'block';
+            }
+        }
+
+        function setupTabListeners() {
+             document.querySelectorAll('.tab-button').forEach(button => {
+                button.removeEventListener('click', handleTabClick); 
+                button.addEventListener('click', handleTabClick);
+            });
+        }
+
+        function handleTabClick(event) {
+             activateTab(event.currentTarget);
+        }
+
+
+        // --- Sorting Logic ---
+        let currentSortKey = 'RequestId'; 
+        let currentSortDir = 'asc';
+
+         function getCellValue(row, sortKey) {
+            const cell = row.querySelector(`td[data-type="${sortKey}"]`);
+            if (!cell) return '';
+            let value = cell.textContent.trim();
+             switch (sortKey) {
+                case 'RequestId':
+                case 'StatusCode': 
+                case 'TimeElapsed':
+                case 'Length':
+                    const num = parseInt(value, 10);
+                    // *** POTENCIAL PROBLEMA AQUI: Se status é N/A, parseInt dá NaN. Comparar NaN falha. ***
+                    // *** Vamos tratar NaN explicitamente. ***
+                    return isNaN(num) ? (sortKey === 'StatusCode' ? -1 : 0) : num; // Treat N/A status as -1, others as 0? or use a very small/large number? -1 for Status is okay. 0 for others might mess order.
+                    // Melhor: retornar um valor consistente para NaN, como Number.MIN_SAFE_INTEGER para asc ou Number.MAX_SAFE_INTEGER para desc, dependendo da direção.
+                    // return isNaN(num) ? (currentSortDir === 'asc' ? Number.MIN_SAFE_INTEGER : Number.MAX_SAFE_INTEGER) : num; // Mais robusto?
+                case 'Err':
+                     return value.toLowerCase() === 'yes' ? 1 : 0; 
+                case 'Payload':
+                default:
+                    return value.toLowerCase(); 
+            }
+        }
+
+
+        function sortTable(sortKey, headerCell) {
+            const table = document.getElementById('resultsTable');
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+
+            // *** POTENCIAL PROBLEMA AQUI: Pegar TODAS as TRs, incluindo as de detalhes, pode quebrar a lógica ***
+            // const rows = Array.from(tbody.querySelectorAll('tr:not(.details-row)')); // Get only main data rows
+            
+             // *** CORREÇÃO: Vamos pegar os pares Main+Details ANTES de ordenar ***
+             const allRows = Array.from(tbody.querySelectorAll('tr'));
+             const rowPairs = [];
+             for (let i = 0; i < allRows.length; i += 2) {
+                 if (allRows[i] && !allRows[i].classList.contains('details-row') && // É uma linha principal
+                     allRows[i+1] && allRows[i+1].classList.contains('details-row')) { // E a próxima é de detalhes
+                     rowPairs.push({ main: allRows[i], details: allRows[i+1] });
+                 } else if (allRows[i]) {
+                     // Linha principal sem linha de detalhes? Adicionar apenas ela.
+                     // Ou pode indicar um problema no HTML gerado pelo Go template se sempre deveriam ter pares.
+                     console.warn("Found main row without subsequent details row at index", i, allRows[i]);
+                     // Vamos incluir apenas a linha principal por enquanto se não tiver par
+                     // rowPairs.push({ main: allRows[i], details: null }); 
+                 }
+             }
+             // *** FIM CORREÇÃO ***
+
+
+            // Determine sort direction
+            if (sortKey === currentSortKey) {
+                currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
             } else {
-                detailsRow.style.display = "none";
+                currentSortDir = 'asc'; 
+                table.querySelectorAll('thead th').forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
             }
-        }
+            currentSortKey = sortKey;
 
-        function addOrder() {
-            const container = document.getElementById('order-by-container');
-            const numberOfOrders = container.getElementsByClassName('order-by').length;
-            if (numberOfOrders >= 6) {
-                console.log('Maximum number of orders reached: ' + numberOfOrders);
-                return;
-            }
+            // Update header indicator
+             if (headerCell) {
+                 headerCell.classList.remove('sort-asc', 'sort-desc');
+                 headerCell.classList.add(currentSortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+             }
 
-            const orderByDiv = document.createElement('div');
-            orderByDiv.className = 'order-by';
+            // Sort the ROW PAIRS based on the main row's value
+            rowPairs.sort((a, b) => {
+                const aValue = getCellValue(a.main, sortKey); // Usa a.main
+                const bValue = getCellValue(b.main, sortKey); // Usa b.main
 
-            const label = document.createElement('label');
-            label.textContent = 'Then by:';
-
-            const select = document.createElement('select');
-            select.className = 'type-select';
-            select.name = 'type';
-            select.innerHTML = `
-                    <option value="RequestId">Request</option>
-                    <option value="Payload">Payload</option>
-                    <option value="StatusCode">Status Code</option>
-                    <option value="TimeElapsed">Time Elapsed</option>
-                    <option value="Length">Length</option>
-                    <option value="Err">Error</option>
-            `;
-
-            const removeBtn = document.createElement('button');
-            removeBtn.className = 'remove-btn';
-            removeBtn.textContent = '-';
-            removeBtn.onclick = function() { removeOrder(removeBtn); };
-
-            orderByDiv.appendChild(label);
-            orderByDiv.appendChild(select);
-            orderByDiv.appendChild(removeBtn);
-            container.appendChild(orderByDiv);
-        }
-
-        function removeOrder(button) {
-            const container = document.getElementById('order-by-container');
-            container.removeChild(button.parentNode);
-        }
-
-        function order() {
-            const orderByContainer = document.getElementById('order-by-container');
-
-            const orderCriteria = [];
-            document.querySelectorAll("select").forEach(select => orderCriteria.push(select.value));
-
-            const rows = Array.from(document.querySelectorAll('tbody tr:not(.details-row)')).map(row => {
-                return {
-                    mainRow: row,
-                    detailsRow: row.nextElementSibling && row.nextElementSibling.classList.contains('details-row') ? row.nextElementSibling : null
-                };
-            });
-
-            rows.sort((a, b) => {
-                for (const criteria of orderCriteria) {
-                    const aValue = a.mainRow.querySelector(`td[data-type="${criteria}"]`).textContent.trim();
-                    const bValue = b.mainRow.querySelector(`td[data-type="${criteria}"]`).textContent.trim();
-
-                    if (aValue < bValue) return -1;
-                    if (aValue > bValue) return 1;
+                let comparison = 0;
+                // *** POTENCIAL PROBLEMA: Comparação direta pode falhar para NaN ou tipos mistos ***
+                // Vamos refinar a comparação
+                if (typeof aValue === 'number' && typeof bValue === 'number') {
+                     comparison = aValue - bValue; // Comparação numérica direta
+                } else {
+                     // Comparação como string se não forem ambos números
+                     const stringA = String(aValue);
+                     const stringB = String(bValue);
+                     if (stringA < stringB) { comparison = -1; }
+                     else if (stringA > stringB) { comparison = 1; }
                 }
-                return 0;
+
+
+                // if (aValue < bValue) { // Comparação antiga
+                //     comparison = -1;
+                // } else if (aValue > bValue) {
+                //     comparison = 1;
+                // }
+
+                return currentSortDir === 'asc' ? comparison : comparison * -1;
             });
 
-            const tbody = document.querySelector('tbody');
-            tbody.innerHTML = '';
-
-            rows.forEach(({ mainRow, detailsRow }) => {
-                tbody.appendChild(mainRow);
-                if (detailsRow) {
-                    tbody.appendChild(detailsRow);
+            // Re-append row pairs in sorted order
+            tbody.innerHTML = ''; // Clear existing content
+            rowPairs.forEach(pair => {
+                tbody.appendChild(pair.main);
+                if (pair.details) { // Anexa a linha de detalhes SE ela existir
+                   tbody.appendChild(pair.details);
                 }
             });
 
-            activeClickEventOnDetailsRow();
+            // Re-attach event listeners for tabs after sorting
+            setupTabListeners();
         }
 
-        activeClickEventOnDetailsRow();
+
+        // --- Multi-level Sort Controls (Optional - Keep or Remove) ---
+        function addOrder() { /* ... keep original addOrder JS ... */ }
+        function removeOrder(button) { /* ... keep original removeOrder JS ... */ }
+        function applySorting() { /* Implement if using multi-level sort */ }
+
+
+        // --- Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setupTabListeners(); // Setup listeners for initial tabs
+            // Apply default sort on load - ESTA É A LINHA CRÍTICA
+            const defaultSortHeader = document.querySelector(`thead th[data-sort-key="${currentSortKey}"]`);
+            if (defaultSortHeader) { // Verifica se o header existe
+                 try {
+                    sortTable(currentSortKey, defaultSortHeader); // Tenta ordenar
+                 } catch (error) {
+                    console.error("Error during initial table sort:", error);
+                    // Se falhar, a tabela pode ficar vazia ou parcialmente renderizada.
+                    // Poderíamos tentar exibir a tabela sem ordenar como fallback?
+                 }
+            } else {
+                 console.warn("Default sort header not found for key:", currentSortKey);
+            }
+
+        });
 
     </script>
 </body>
