@@ -1,0 +1,15 @@
+<tr onclick="toggleDetails(this)" [class.error-row]="isError">
+    <td data-type="RequestId"> {{ requestId }} </td>
+    <td data-type="Payload" title="{{ payload }}">{{ payload }}</td> <!-- Add title for long payloads -->
+    <td data-type="StatusCode">{{ statusCode }}</td>
+    <td data-type="TimeElapsed">{{ timeElapsed }}</td>
+    <td data-type="Err">
+        @if (isError) {
+            <span class="error-indicator" title="{{ errorMsg }}">Yes</span>
+            <!--<div class="error-message">{{ .ErrorMsg }}</div>--> <!-- Show full msg in details -->
+        } @else {
+            No
+        }
+    </td>
+    <td data-type="Length">{{ length }}</td>
+</tr>

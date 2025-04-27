@@ -1,0 +1,21 @@
+<tr class="details-row" style="display: none;">
+    <td colspan="6"> <!-- Span all columns -->
+        <div class="request-response-container">
+            <div class="tab-header">
+                <button class="tab-button button-request active" data-target="content-request">Request</button>
+                <button class="tab-button button-response" data-target="content-response">Response</button>
+            </div>
+            @if (isError) {
+                <div style="padding: 10px 15px; background-color: #fff3cd; border: 1px solid #ffeeba; color: #856404;">
+                    <strong>Error:</strong> {{ errorMsg }}
+                </div>
+            }
+            <div class="tab-content content-request">
+                <pre>{{ httpReq }}</pre>
+            </div>
+            <div class="tab-content content-response" style="display: none;">
+                <pre>{{ httpRes }}</pre>
+            </div>
+        </div>
+    </td>
+</tr>

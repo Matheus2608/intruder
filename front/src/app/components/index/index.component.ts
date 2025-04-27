@@ -1,9 +1,14 @@
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2, ViewChild, ViewChildren } from '@angular/core';
 import { PayloadAreaComponent } from '../payload-area/payload-area.component';
+import { ApiClientService } from '../../services/api-client.service';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { AttackInput } from '../../interfaces/AttackInput';
+import { AttackOutput } from '../../interfaces/AttackOutput';
 
 @Component({
   selector: 'app-index',
-  imports: [PayloadAreaComponent],
+  imports: [FormsModule, PayloadAreaComponent],
   templateUrl: './index.component.html',
   styleUrl: './index.component.css'
 })
@@ -29,9 +34,12 @@ export class IndexComponent implements OnInit {
   }
 
   @ViewChild('httpPayload') httpPayload!: ElementRef;
+  @ViewChildren('payloadArea') payloadAreas!: PayloadAreaComponent[];
+  indexPayload : number[] = [];
   initialHttpPayload : string = "";
+  selectedAttackType = "sniper";
 
-  constructor(private renderer: Renderer2) {}
+  constructor(private apiClient : ApiClientService, private router : Router, private renderer: Renderer2) {}
 
   addSpecialCharsBetweenSelectedArea = () => {
     const selection = window.getSelection();
@@ -48,6 +56,8 @@ export class IndexComponent implements OnInit {
 
         selection.removeAllRanges(); // Remove a seleção
     }
+
+    this.indexPayload.push(this.indexPayload.length + 1);
   }
 
   removeDollarSpans() {
@@ -66,6 +76,43 @@ export class IndexComponent implements OnInit {
                 range.insertNode(textNode);
           }
       });
+
+      this.indexPayload = [];
+  }
+
+  updateNumberOfPayloads() {
+    const text = this.httpPayload.nativeElement.innerText;
+    const regex = /§/g;
+    const numberOfSpecialCharacters = text.match(regex)?.length || 0;
+    const numberOfPayloads = Math.floor(numberOfSpecialCharacters / 2);
+    this.indexPayload = Array.from({ length: numberOfPayloads }, (_, i) => i + 1);
+  }
+
+  attack(event: Event) {
+    event.preventDefault();
+
+    this.apiClient.getFakeApi(this.createRequest()).subscribe({
+      next: (response : AttackOutput) => {
+        console.log('Response:', response);
+        this.router.navigate(['/attack']);
+      },
+      error: (error) => {
+        console.error('Error:', error);
+      }
+    });
+  }
+
+  createRequest() : AttackInput {
+    return {
+      typeOfAttack : this.selectedAttackType,
+      path : "api/fake",
+      payloads: this.getAllPayloads(),
+      httpRequest: this.httpPayload.nativeElement.innerText,
+    }
+  }
+
+  getAllPayloads() : string[] {
+    return this.payloadAreas.map((payloadArea) => payloadArea.payloadText);
   }
 
 }

@@ -5,7 +5,7 @@
             <div class="config-options">
                 <div>
                     <label for="typeOfAttack">Attack type:</label>
-                    <select id="typeOfAttack" name="typeOfAttack">
+                    <select id="typeOfAttack" name="typeOfAttack" [(ngModel)]="selectedAttackType">
                         <option value="sniper">Sniper</option>
                         <option value="battering-ram">Battering Ram</option>
                         <option value="pitch-fork">Pitch Fork</option>
@@ -28,18 +28,19 @@
              <div class="payload-buttons">
                 <button (click)="addSpecialCharsBetweenSelectedArea()" type="button" id="addSectionButton" title="Mark selected text as a payload position (§...§)">Add §</button>
                 <button (click)="removeDollarSpans()" type="button" id="clearButton" title="Remove all payload markers (§)">Clear §</button>
+                <button (click)="updateNumberOfPayloads()" type="button" id="updateButton" title="Update the number os payload areas">Update Payload Areas</button>
             </div>
             <div class="action-button">
-                 <button type="submit" name="action" value="start" class="start-button">Start Attack</button>
+                 <button (click)="attack($event)" type="submit" name="action" value="start" class="start-button">Start Attack</button>
             </div>
 
         </div>
-        <!-- Placeholder for dynamic payload buttons if needed -->
-        <!-- <div class="button-container" id="buttonsContainer"></div> -->
 
         <div class="content" id="content">
             <div #httpPayload contenteditable="true" spellcheck=false class="request-input" id="requestData">{{initialHttpPayload}}</div>
-            <textarea data-payload=1 name="payload1" class="payload-input" placeholder="Payload list 1 (one payload per line)"></textarea>
+            @for (index of indexPayload; track $index) {
+                <app-payload-area [payloadId]="index"></app-payload-area>
+            }
         </div>
     </form>
 </div>

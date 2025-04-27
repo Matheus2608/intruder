@@ -1,0 +1,51 @@
+<div class="container">
+    <div class="header">
+        <h1>Intruder Attack Results: <a [href]="url" target="_blank" rel="noopener noreferrer">{{ url }}</a></h1>
+        <h2>Total Attack Time: {{ elapsedTime }} | Requests: {{ lenList }}</h2>
+    </div>
+
+    <!-- Optional Ordering Controls -->
+    <div id="order-controls" style="display: none;"> <!-- Hidden by default, enable if complex sorting is desired -->
+        <div id="order-by-container">
+            <div class="order-by">
+                <label>Sort by:</label>
+                <select name="type" class="type-select">
+                    <option value="RequestId">Request #</option>
+                    <option value="Payload">Payload</option>
+                    <option value="StatusCode">Status</option>
+                    <option value="TimeElapsed">Time (ms)</option>
+                    <option value="Length">Length</option>
+                    <option value="Err">Error</option>
+                </select>
+                 <select name="direction" class="direction-select">
+                    <option value="asc">Asc</option>
+                    <option value="desc">Desc</option>
+                </select>
+                <button class="remove-btn" onclick="removeOrder(this)" title="Remove sort level">-</button>
+            </div>
+        </div>
+        <button id="add-btn" class="add-btn" onclick="addOrder()" title="Add sorting level">+</button>
+        <button type="button" id="submit-btn" onclick="applySorting()">Apply Sort</button>
+    </div>
+
+
+    <div class="table-container">
+        <table id="resultsTable">
+            <thead>
+                <tr>
+                    <!-- Add data-sort-key for easier JS selection -->
+                    <th data-sort-key="RequestId" onclick="sortTable('RequestId', this)">Request #</th>
+                    <th data-sort-key="Payload" onclick="sortTable('Payload', this)">Payload</th>
+                    <th data-sort-key="StatusCode" onclick="sortTable('StatusCode', this)">Status</th>
+                    <th data-sort-key="TimeElapsed" onclick="sortTable('TimeElapsed', this)">Time (ms)</th>
+                    <th data-sort-key="Err" onclick="sortTable('Err', this)">Error</th>
+                    <th data-sort-key="Length" onclick="sortTable('Length', this)">Length</th>
+                </tr>
+            </thead>
+            <tbody>
+                <app-attack-metadata></app-attack-metadata>
+                <app-request-body></app-request-body>
+            </tbody>
+        </table>
+    </div>
+</div>

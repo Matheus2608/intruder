@@ -1,0 +1,61 @@
+/* ... (Keep existing styles from the original file) ... */
+    /* Add styles for errors or specific highlighting */
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+    .container { width: 95%; max-width: 1600px; margin: 0 auto; background-color: #fff; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); padding: 20px; border-radius: 8px; }
+    .header { background-color: #f8f8f8; padding: 15px; border-bottom: 1px solid #ddd; margin: -20px -20px 20px -20px; border-radius: 8px 8px 0 0; }
+    .header h1 { font-size: 20px; margin: 0 0 5px 0; }
+    .header h1 a { color: #007bff; text-decoration: none; }
+    .header h1 a:hover { text-decoration: underline; }
+    .header h2 { font-size: 14px; color: #555; margin: 0; }
+    .table-container { margin-top: 20px; width: 100%; overflow-x: auto; /* Allow horizontal scroll on small screens */ }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+    th, td { padding: 10px 12px; border: 1px solid #ddd; text-align: left; white-space: nowrap; /* Prevent wrapping in cells */ }
+    th { background-color: #f4f4f4; font-weight: bold; cursor: pointer; position: relative;}
+    th::after { /* Add space for sort indicator */
+         content: '';
+         display: inline-block;
+         width: 1em; /* Adjust width as needed */
+         height: 1em;
+         margin-left: 5px;
+    }
+    /* Simple sort indicator */
+    th.sort-asc::after { content: ' ▲'; }
+    th.sort-desc::after { content: ' ▼'; }
+
+    tbody tr:hover:not(.details-row) { background-color: #f9f9f9; } /* Hover effect */
+    tbody tr { cursor: pointer; } /* Indicate rows are clickable */
+    .details-row { background-color: #fafafa; }
+    .details-row td { padding: 0; } /* Remove padding for the container */
+
+    /* Request/Response Tabs */
+    .request-response-container { margin: 0; border: none; }
+    .tab-header { display: flex; background-color: #e9ecef; border-bottom: 1px solid #ddd; }
+    .tab-button { flex: 0 0 auto; /* Don't grow/shrink, base on content */ padding: 10px 15px; cursor: pointer; background-color: transparent; border: none; border-right: 1px solid #ddd; outline: none; font-weight: normal; color: #495057; font-size: 13px;}
+    .tab-button:last-child { border-right: none; }
+    .tab-button.active { background-color: #ffffff; font-weight: bold; color: #007bff; border-bottom: 1px solid #ffffff; margin-bottom: -1px; /* Overlap border */ }
+    .tab-content { padding: 15px; border: 1px solid #ddd; border-top: none; background-color: #ffffff; max-height: 400px; /* Increase height */ overflow-y: auto; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.5; }
+    .tab-content pre { margin: 0; white-space: pre-wrap; word-wrap: break-word; color: #333; }
+
+    /* Error styling */
+    .error-row td { /* Style the main row */
+        /* background-color: #ffebee; */ /* Light red background for error rows */
+        color: #b71c1c; /* Darker red text */
+    }
+    .error-message {
+        color: #d32f2f; /* Red color for error messages */
+        font-style: italic;
+        font-size: 12px;
+    }
+
+    /* Ordering Controls - Keep or remove based on preference */
+    #order-controls { margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; }
+    #order-by-container { display: flex; flex-direction: column; gap: 10px; }
+    .order-by { display: flex; align-items: center; gap: 8px; }
+    .order-by label { font-size: 14px; font-weight: bold; margin-right: 5px; }
+    .type-select { padding: 5px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; }
+    .remove-btn, .add-btn { background-color: #dc3545; color: white; border: none; border-radius: 50%; /* Circle */ width: 24px; height: 24px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; line-height: 1; }
+    .add-btn { background-color: #28a745; margin-top: 10px; width: auto; height: auto; padding: 8px 12px; border-radius: 4px; }
+    .remove-btn:hover { background-color: #c82333; }
+    .add-btn:hover { background-color: #218838; }
+    #submit-btn { background-color: #007bff; color: white; border: none; border-radius: 4px; padding: 10px 15px; cursor: pointer; display: block; margin-top: 15px; font-size: 14px; }
+    #submit-btn:hover { background-color: #0056b3; }
