@@ -91,15 +91,11 @@ export class IndexComponent implements OnInit {
   attack(event: Event) {
     event.preventDefault();
 
-    this.apiClient.getFakeApi(this.createRequest()).subscribe({
-      next: (response : AttackOutput) => {
-        console.log('Response:', response);
-        this.router.navigate(['/attack']);
-      },
-      error: (error) => {
-        console.error('Error:', error);
+    this.apiClient.getFakeApi(this.createRequest()).subscribe(
+      (response: boolean) => {
+        response ? this.router.navigate(['/attack']) : console.error('Error in API call');
       }
-    });
+    );
   }
 
   createRequest() : AttackInput {

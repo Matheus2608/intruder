@@ -7,4 +7,5 @@ export interface ResponseData {
     bytesLenght: number,
     request: string,
     response: string
+    errorMsg: string
 }

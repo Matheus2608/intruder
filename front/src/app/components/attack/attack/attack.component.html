@@ -43,8 +43,23 @@
                 </tr>
             </thead>
             <tbody>
-                <app-attack-metadata></app-attack-metadata>
-                <app-request-body></app-request-body>
+                @for (response of responses; track $index) {
+                    <tr onclick="toggleDetails(this)"  [class.error-row]=response.didError app-attack-metadata
+                        [requestId]="response.requestId"
+                        [payload]="response.payload"
+                        [statusCode]="response.statusCode"
+                        [timeElapsed]="response.elapsedTimeInMilliseconds"
+                        [errorMsg]="response.errorMsg"
+                        [isError]="response.didError"
+                    >
+
+                    <tr class="details-row" style="display: none;" app-request-body
+                        [errorMsg]="response.errorMsg"
+                        [httpReq]="response.request"
+                        [httpRes]="response.response"
+                        [isError]="response.didError"
+                    >
+                }
             </tbody>
         </table>
     </div>

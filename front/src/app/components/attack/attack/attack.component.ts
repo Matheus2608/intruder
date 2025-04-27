@@ -2,10 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AttackMetadataComponent } from "../attack-metadata/attack-metadata.component";
 import { RequestBodyComponent } from "../request-body/request-body.component";
+import { AttackOutput } from '../../../interfaces/AttackOutput';
+import { ResponseData } from '../../../interfaces/ResponseData';
+import { ApiClientService } from '../../../services/api-client.service';
 
 @Component({
   selector: 'app-attack',
-  imports: [AttackMetadataComponent, RequestBodyComponent, AttackMetadataComponent, RequestBodyComponent],
+  imports: [AttackMetadataComponent, RequestBodyComponent],
   templateUrl: './attack.component.html',
   styleUrl: './attack.component.css'
 })
@@ -14,11 +17,20 @@ export class AttackComponent implements OnInit {
     url: any;
     lenList: any;
     data: any | undefined;
+    responses: ResponseData[] = [];
 
-    constructor(private router: Router) {}
+    constructor(private apiService : ApiClientService, private router: Router) {}
 
     ngOnInit() {
-        // this.data = this.router.getCurrentNavigation()?.extras?.state?;
+      this.apiService.getFakeApiResponse().subscribe({
+        next: (response: AttackOutput) => {
+        this.elapsedTime = response.totalElapsedTimeInMiliseconds;
+        this.url = response.url;
+        this.responses = response.responses;
+      },
+        error: (error) => {
+          console.error('Error fetching data:', error);
+      }});
     }
 
 //     toggleDetails(row) {

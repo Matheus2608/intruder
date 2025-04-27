@@ -1,17 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-attack-metadata',
+  selector: '[app-attack-metadata]',
   imports: [],
   templateUrl: './attack-metadata.component.html',
   styleUrl: './attack-metadata.component.css'
 })
 export class AttackMetadataComponent {
-    isError: any;
-    requestId: any;
-    payload: any;
-    statusCode: any;
-    timeElapsed: any;
-    errorMsg: any;
-    length: any;
+    @Input() isError: any;
+    @Input() requestId: any;
+    @Input() payload: any;
+    @Input() statusCode: any;
+    @Input() timeElapsed: any;
+    @Input() errorMsg: any;
+    @Input() length: any;
 }

@@ -1,15 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 @Component({
-  selector: 'app-request-body',
+  selector: '[app-request-body]',
   imports: [],
   templateUrl: './request-body.component.html',
   styleUrl: './request-body.component.css'
 })
 export class RequestBodyComponent {
-  isError: any;
-  errorMsg: any;
-  httpReq: any;
-  httpRes: any;
+  @Input() isError: any;
+  @Input() errorMsg: any;
+  @Input() httpReq: any;
+  @Input() httpRes: any;
 
 }
