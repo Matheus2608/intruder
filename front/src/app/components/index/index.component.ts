@@ -91,7 +91,7 @@ export class IndexComponent implements OnInit {
   attack(event: Event) {
     event.preventDefault();
 
-    this.apiClient.getFakeApi(this.createRequest()).subscribe(
+    this.apiClient.postFakeApi(this.createRequest()).subscribe(
       (response: boolean) => {
         response ? this.router.navigate(['/attack']) : console.error('Error in API call');
       }
@@ -100,10 +100,9 @@ export class IndexComponent implements OnInit {
 
   createRequest() : AttackInput {
     return {
-      typeOfAttack : this.selectedAttackType,
-      path : "api/fake",
+      typeOfAttack : this.selectedAttackType.toUpperCase(),
       payloads: this.getAllPayloads(),
-      httpRequest: this.httpPayload.nativeElement.innerText,
+      requestData: this.httpPayload.nativeElement.innerText,
     }
   }
 

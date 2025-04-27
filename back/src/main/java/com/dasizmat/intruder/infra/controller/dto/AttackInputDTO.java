@@ -6,6 +6,6 @@ import java.util.List;
 
 public record AttackInputDTO(
     TypeOfAttack typeOfAttack,
-    String RequestData,
-    List<List<String>> payload
+    String requestData,
+    List<List<String>> payloads
 ) { }

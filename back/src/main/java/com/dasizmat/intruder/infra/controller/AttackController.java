@@ -24,7 +24,15 @@ public class AttackController {
             .build();
 
     @GetMapping("/fake")
+    @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<AttackOutputDTO> fakeApi() {
+        return ResponseEntity.ok(createFakeOutput());
+    }
+
+    @PostMapping("/fake")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<AttackOutputDTO> postFakeApi(@RequestBody AttackInputDTO body) {
+        System.out.println(body);
         return ResponseEntity.ok(createFakeOutput());
     }
 
