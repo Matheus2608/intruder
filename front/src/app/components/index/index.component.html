@@ -39,7 +39,7 @@
         <div class="content" id="content">
             <div #httpPayload contenteditable="true" spellcheck=false class="request-input" id="requestData">{{initialHttpPayload}}</div>
             @for (index of indexPayload; track $index) {
-                <app-payload-area [payloadId]="index"></app-payload-area>
+                <textarea app-payload-area></textarea>
             }
         </div>
     </form>

@@ -104,12 +104,15 @@ form {
     gap: 15px; /* Space between textareas */
     flex-grow: 1; /* Allow content area to fill vertical space */
     min-height: 400px; /* Minimum height */
+    width: 100%; /* Full width */
 }
 
 .request-input,
 .payload-input {
     /* width is set dynamically by JS */
-    height: 100%; /* Fill parent height */
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
     background-color: #fdfdfd;
     border: 1px solid #ccc;
     padding: 15px;
@@ -129,7 +132,7 @@ form {
 }
 
 .payload-input {
-     flex-basis: 25%; /* Default width, JS might override */
+     flex-basis: 50%; /* Default width, JS might override */
      flex-grow: 1;
 }
 
